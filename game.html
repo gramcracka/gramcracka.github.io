@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        font-family: "Courier";
+        letter-spacing: 5px;
+        color: black;
+      }
+
+      #gameboard {
+        margin: 20px;
+        border: 1px blue solid;
+        padding: 10px;
+        display: inline-block;
+        font-size: 25px;
+        width: 85;
+        background: url("https://cdn.glitch.global/b50ea3a4-c589-4be7-a197-c9a60196c902/LAVENDDAAA.jpg?v=1650997334087");
+      }
+      .not-won {
+        display: none;
+      }
+    </style>
+    <script defer>
+      var hasWon = false;
+      var gameboard = [];
+      var firstrow = 0;
+      var firstcolumn = 11;
+      var player = {
+        row: firstrow,
+        column: firstcolumn,
+      };
+      var counter = 0;
+      while (counter < 20) {
+        var templist = [];
+        var hack = 0;
+        while (hack < 20) {
+          var temp = {};
+          temp.tile = ".";
+          temp.monster = false;
+          temp.direction = "left";
+          templist.push(temp);
+          console.log(templist);
+          hack += 1;
+        }
+        counter++;
+        gameboard.push(templist);
+      }
+      console.log(gameboard);
+      gameboard[19][0].tile = "W";
+      gameboard[2][3].tile = "H";
+      gameboard[2][3].tile = "H";
+      gameboard[2][3].tile = "H";
+      gameboard[1][5].tile = "H";
+      gameboard[8][0].tile = "H";
+      gameboard[3][6].tile = "H";
+      gameboard[9][1].tile = "H";
+      gameboard[7][4].tile = "H";
+      gameboard[0][9].tile = "H";
+      gameboard[6][6].tile = "H";
+      gameboard[9][9].tile = "H";
+      gameboard[8][7].tile = "H";
+      gameboard[13][7].tile = "H";
+      gameboard[4][9].tile = "H";
+      gameboard[15][0].tile = "H";
+      gameboard[13][17].tile = "H";
+      gameboard[19][9].tile = "H";
+      gameboard[9][19].tile = "H";
+
+      gameboard[13][13].monster = true;
+      gameboard[12][10].monster = true;
+      gameboard[5][4].monster = true;
+      gameboard[11][9].monster = true;
+      gameboard[16][5].monster = true;
+      gameboard[15][19].monster = true;
+      gameboard[17][11].monster = true;
+      gameboard[2][16].monster = true;
+      gameboard[7][6].monster = true;
+      gameboard[3][9].monster = true;
+      gameboard[18][9].monster = true;
+      gameboard[19][16].monster = true;
+      gameboard[1][13].monster = true;
+      gameboard[0][3].monster = true;
+      gameboard[10][18].monster = true;
+      gameboard[6][12].monster = true;
+      gameboard[9][2].monster = true;
+      gameboard[9][10].monster = true;
+
+      function render() {
+        var index = 0;
+        var newCode = "";
+        while (index < gameboard.length) {
+          var row = "<div>";
+          var inner_index = 0;
+          var columns = gameboard[index];
+          while (inner_index < columns.length) {
+            var tile = columns[inner_index].tile;
+            if (index == player.row && inner_index == player.column) {
+              row += "o";
+            } else if (columns[inner_index].monster) {
+              row += "+";
+            } else {
+              var tile = columns[inner_index].tile;
+              row += tile;
+            }
+            inner_index += 1;
+          }
+          row += "<div>";
+          index += 1;
+          newCode += row;
+        }
+        document.getElementById("gameboard").innerHTML = newCode;
+      }
+      window.addEventListener("DOMContentLoaded", function () {
+        render();
+      });
+
+      function moveMonster() {
+        var rowCounter = 0;
+        while (rowCounter < gameboard.length) {
+          var columnCounter = 0;
+          var justMoved = false;
+          var columnList = gameboard[rowCounter];
+          while (columnCounter < columnList.length) {
+            if (columnList[columnCounter].monster) {
+              // monster is moving to the left
+              if (columnList[columnCounter].direction == "left") {
+                // checking if the monster is not at the left edge of the board, and the tile to its left is not an obstacle
+                if (
+                  columnCounter != 0 &&
+                  columnList[columnCounter - 1].tile == "."
+                ) {
+                  console.log("test");
+                  gameboard[rowCounter][columnCounter].monster = false;
+                  gameboard[rowCounter][columnCounter - 1].monster = true;
+                  if (
+                    rowCounter == player.row &&
+                    columnCounter == player.column
+                  ) {
+                    player.column = firstcolumn;
+                    player.row = firstrow;
+                  }
+                } else if (
+                  columnCounter == 0 ||
+                  columnList[columnCounter - 1].tile == "H"
+                ) {
+                  gameboard[rowCounter][columnCounter].direction = "right";
+                }
+                if (
+                  rowCounter == player.row &&
+                  columnCounter == player.column
+                ) {
+                  player.column = firstcolumn;
+                  player.row = firstrow;
+                }
+                // monster is moving to the right
+              } else if (columnList[columnCounter].direction == "right") {
+                if (
+                  // checking if monster is not at the right edge of the board and the tile to its right is not an obstacle
+                  columnCounter != columnList.length - 1 &&
+                  columnList[columnCounter + 1].tile == "." &&
+                  !justMoved
+                ) {
+                  gameboard[rowCounter][columnCounter].monster = false;
+                  gameboard[rowCounter][columnCounter].direction = "left";
+
+                  gameboard[rowCounter][columnCounter + 1].monster = true;
+                  gameboard[rowCounter][columnCounter + 1].direction = "right";
+
+                  justMoved = true;
+                  if (
+                    rowCounter == player.row &&
+                    columnCounter + 1 == player.column
+                  ) {
+                    player.column = firstcolumn;
+                    player.row = firstrow;
+                  }
+
+                  if (
+                    rowCounter == player.row &&
+                    columnCounter + 1 == player.column
+                  ) {
+                    player.column = firstcolumn;
+                    player.row = firstrow;
+                  }
+                } else if (justMoved) {
+                  justMoved = false;
+                  // monster is at right edge of the board OR has an obstacle to its right
+                } else if (
+                  columnCounter == columnList.length - 1 ||
+                  columnList[columnCounter + 1].tile == "H"
+                ) {
+                  gameboard[rowCounter][columnCounter].direction = "left";
+                  if (
+                    rowCounter == player.row &&
+                    columnCounter == player.column
+                  ) {
+                    player.column = firstcolumn;
+                    player.row = firstrow;
+                  }
+                }
+              }
+            }
+            columnCounter += 1;
+          }
+          rowCounter += 1;
+        }
+      }
+
+      function keyPress(e) {
+        if (hasWon) {
+          return;
+        }
+        if (
+          e.key == "ArrowLeft" &&
+          player.column != 0 &&
+          gameboard[player.row][player.column - 1].tile != "H"
+        ) {
+          player.column -= 1;
+          moveMonster();
+          render();
+        }
+        if (
+          e.key == "ArrowRight" &&
+          player.column != 19 &&
+          gameboard[player.row][player.column + 1].tile != "H"
+        ) {
+          player.column += 1;
+          moveMonster();
+          render();
+        }
+        if (
+          e.key == "ArrowUp" &&
+          player.row != 0 &&
+          gameboard[player.row - 1][player.column].tile != "H"
+        ) {
+          player.row -= 1;
+          moveMonster();
+        }
+        if (
+          e.key == "ArrowDown" &&
+          player.row != 19 &&
+          gameboard[player.row + 1][player.column].tile != "H"
+        ) {
+          player.row += 1;
+          moveMonster();
+        }
+
+        render();
+
+        if (gameboard[player.row][player.column].tile == "W") {
+          hasWon = true;
+          document.getElementById("win").classList.remove("not-won");
+        }
+
+        console.log(e);
+      }
+
+      window.addEventListener("keyup", keyPress);
+    </script>
+  </head>
+  <body>
+    <div id="gameboard"></div>
+    <div id="win" class="not-won">YOU WIN!!!</div>
+  </body>
+</html>
